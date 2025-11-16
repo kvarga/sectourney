@@ -1,0 +1,196 @@
+/* Global dark theme styling */
+body {
+  font-family: Arial, sans-serif;
+  background-color: #121212;
+  color: #e0e0e0;
+  margin: 0;
+  padding: 1rem;
+}
+
+h1 {
+  margin: 0;
+  margin-bottom: 0.5rem;
+  color: #ffffff;
+}
+
+p {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: #cccccc;
+  max-width: 800px;
+}
+
+/* Controls */
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+button {
+  background-color: #2d2d2d;
+  color: #e0e0e0;
+  border: 1px solid #444;
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+button:hover {
+  background-color: #3a3a3a;
+}
+
+/* Layout for dashboard */
+.dashboard {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.schedule,
+.standings {
+  flex: 1 1 50%;
+  max-width: 50%;
+}
+
+@media screen and (max-width: 900px) {
+  .schedule,
+  .standings {
+    flex-basis: 100%;
+    max-width: 100%;
+  }
+}
+
+/* Card container */
+.card {
+  background-color: #1e1e1e;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+}
+
+/* Schedule grid */
+#scheduleContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 0.5rem;
+  max-height: 70vh;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+}
+
+/* Game card */
+.game-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid #333;
+  border-radius: 6px;
+  background-color: #262626;
+  font-size: 0.9rem;
+  line-height: 1.3;
+}
+
+.game-card.completed {
+  background-color: #1a1a1a;
+}
+
+.game-card.selected {
+  background-color: #37474f;
+}
+
+/* Info and pick area within game card */
+.game-info {
+  flex: 1 1 55%;
+  margin-right: 0.5rem;
+  overflow-wrap: anywhere;
+}
+
+.pick-area {
+  flex: 1 1 45%;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.2rem;
+}
+
+/* Pill styles for picks */
+.pill {
+  display: inline-block;
+  border: 1px solid #444;
+  border-radius: 14px;
+  padding: 0.15rem 0.5rem;
+  cursor: pointer;
+  background-color: #333;
+  color: #e0e0e0;
+  font-size: 0.8rem;
+}
+
+.pill input {
+  display: none;
+}
+
+.pill input:checked + span {
+  background-color: #0066cc;
+  color: #ffffff;
+}
+
+.pill span {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  border-radius: 14px;
+}
+
+/* Winner style for completed game results */
+.winner {
+  font-weight: bold;
+  color: #90caf9;
+}
+
+/* Standings table */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+th, td {
+  border: 1px solid #333;
+  padding: 0.4rem;
+  text-align: center;
+  font-size: 0.85rem;
+}
+
+th {
+  background-color: #2a2a2a;
+  color: #ffffff;
+}
+
+tr.certain {
+  background-color: #223f2a;
+}
+
+tr.certain td {
+  font-weight: bold;
+  color: #a5d6a7;
+}
+
+tr.noChance {
+  background-color: #3a1f1f;
+}
+
+tr.noChance td {
+  color: #ef9a9a;
+}
+
+/* Scenario summary text */
+.scenario-summary {
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  color: #bbbbbb;
+}
