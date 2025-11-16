@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>2025 SEC Football Scenario Simulator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    /* Dark theme styling with card layout */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0 1rem;
+      background-color: #121212;
+      color: #e0e0e0;
+    }
+    h1, h2 {
+      margin-top: 1rem;
+      color: #ffffff;
+    }
+    #controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    button {
+      background-color: #2d2d2d;
+      color: #e0e0e0;
+      border: 1px solid #444;
+      border-radius: 4px;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #3a3a3a;
+    }
+    .dashboard {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .games-column,
+    .stats-column {
+      flex: 1 1 50%;
+      min-width: 0;
+    }
+    .games-column {
+      max-height: 75vh;
+      overflow-y: auto;
+    }
+    .card {
+      background-color: #1e1e1e;
+      padding: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+      margin-bottom: 1rem;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      border: 1px solid #333;
+      padding: 0.4rem;
+      text-align: center;
+    }
+    th {
+      background-color: #2a2a2a;
+      color: #ffffff;
+    }
+    tr.pending {
+      background-color: #262626;
+    }
+    tr.completed {
+      background-color: #1a1a1a;
+    }
+    tr.selected {
+      background-color: #37474f;
+    }
+    .winner {
+      font-weight: bold;
+      color: #90caf9;
+    }
+    .scenario-summary {
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
+      color: #bbbbbb;
+    }
+    /* pill styles */
+    .pill {
+      display: inline-block;
+      border: 1px solid #444;
+      border-radius: 14px;
+      padding: 0.2rem 0.6rem;
+      margin: 0 0.25rem;
+      cursor: pointer;
+      background-color: #333;
+      color: #e0e0e0;
+      font-size: 0.85rem;
+    }
+    .pill input {
+      display: none;
+    }
+    .pill input:checked + span {
+      background-color: #0066cc;
+      color: #ffffff;
+    }
+    .pill span {
+      display: inline-block;
+      padding: 0.2rem 0.6rem;
+      border-radius: 14px;
+    }
+    /* standings highlight styles */
+    tr.certain {
+      background-color: #223f2a;
+    }
+    tr.certain td {
+      font-weight: bold;
+      font-size: 1.05rem;
+      color: #a5d6a7;
+    }
+    tr.noChance {
+      background-color: #3a1f1f;
+    }
+    tr.noChance td {
+      color: #ef9a9a;
+    }
+    @media (max-width: 800px) {
+      .games-column,
+      .stats-column {
+        flex: 1 1 100%;
+      }
+    }
+    @media (max-width: 600px) {
+      table, th, td {
+        font-size: 0.75rem;
+      }
+      button {
+        flex: 1 1 auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>2025 SEC Football Scenario Simulator</h1>
+  <p>
+    Explore how the remainder of the 2025 SEC football season could unfold. Pick the winners of games that haven't been played yet and see how the conference standings and championship probabilities update automatically.
+  </p>
+  <div id="controls">
+    <button id="toggleCompleted">Show Completed Games</button>
+    <button id="resetPicks">Reset Picks</button>
+  </div>
+  <div class="dashboard">
+    <div class="games-column card">
+      <h2>Remaining Schedule</h2>
+      <div id="scheduleContainer"></div>
+    </div>
+    <div class="stats-column card">
+      <h2>Standings &amp; Championship Odds</h2>
+      <div id="standingsContainer"></div>
+      <div id="scenariosContainer" class="scenario-summary"></div>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
