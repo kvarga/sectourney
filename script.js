@@ -176,23 +176,38 @@ function showError(msg) {
 function buildSchedule() {
   const container = document.getElementById('scheduleContainer');
   if (!container) return;
+  // Clear existing content
   container.innerHTML = '';
-  const frag = document.createDocumentFragment();
+  // Create a table element to host the schedule
+  const table = document.createElement('table');
+  const thead = document.createElement('thead');
+  const headerRow = document.createElement('tr');
+  ['Date','Matchup','Result/Pick'].forEach(label => {
+    const th = document.createElement('th');
+    th.textContent = label;
+    headerRow.appendChild(th);
+  });
+  thead.appendChild(headerRow);
+  table.appendChild(thead);
+  const tbody = document.createElement('tbody');
   scheduleData.forEach((game, idx) => {
-    const card = document.createElement('div');
-    card.classList.add('game-card');
-    card.classList.add(game.winner ? 'completed' : 'pending');
-    card.dataset.index = idx;
-    // Left side: date and matchup text
-    const info = document.createElement('div');
-    info.className = 'game-info';
-    info.textContent = `${game.date}: ${game.awayTeam} @ ${game.homeTeam}`;
-    card.appendChild(info);
-    // Right side: pick controls or result display
-    const pickArea = document.createElement('div');
-    pickArea.className = 'pick-area';
+    const row = document.createElement('tr');
+    row.dataset.index = idx;
     if (game.winner) {
-      // Completed game: show away and home team with scores and highlight winner
+      row.classList.add('completed');
+    }
+    // Date cell
+    const dateCell = document.createElement('td');
+    dateCell.textContent = game.date;
+    row.appendChild(dateCell);
+    // Matchup cell
+    const matchupCell = document.createElement('td');
+    matchupCell.textContent = `${game.awayTeam} @ ${game.homeTeam}`;
+    row.appendChild(matchupCell);
+    // Result/Pick cell
+    const pickCell = document.createElement('td');
+    if (game.winner) {
+      // Completed game: show final result with winner highlighted
       const awaySpan = document.createElement('span');
       awaySpan.textContent = `${game.awayTeam} (${game.awayScore})`;
       const separator = document.createElement('span');
@@ -204,11 +219,11 @@ function buildSchedule() {
       } else {
         homeSpan.classList.add('winner');
       }
-      pickArea.appendChild(awaySpan);
-      pickArea.appendChild(separator);
-      pickArea.appendChild(homeSpan);
+      pickCell.appendChild(awaySpan);
+      pickCell.appendChild(separator);
+      pickCell.appendChild(homeSpan);
     } else {
-      // Pending game: create radio pill controls
+      // Pending game: create pill radio buttons for away, toss-up, home
       function createPill(labelText, value, defaultChecked) {
         const label = document.createElement('label');
         label.className = 'pill';
@@ -231,15 +246,16 @@ function buildSchedule() {
         label.appendChild(span);
         return label;
       }
-      // Order: away team, toss-up, home team
-      pickArea.appendChild(createPill(game.awayTeam, game.awayTeam, false));
-      pickArea.appendChild(createPill('Toss-up', '', true));
-      pickArea.appendChild(createPill(game.homeTeam, game.homeTeam, false));
+      // Append away, toss-up, home pills
+      pickCell.appendChild(createPill(game.awayTeam, game.awayTeam, false));
+      pickCell.appendChild(createPill('Toss-up', '', true));
+      pickCell.appendChild(createPill(game.homeTeam, game.homeTeam, false));
     }
-    card.appendChild(pickArea);
-    frag.appendChild(card);
+    row.appendChild(pickCell);
+    tbody.appendChild(row);
   });
-  container.appendChild(frag);
+  table.appendChild(tbody);
+  container.appendChild(table);
   updateScheduleVisibility();
 }
 
@@ -431,9 +447,14 @@ function updateStandings() {
  * Toggle visibility of completed games based on hideCompleted flag.
  */
 function updateScheduleVisibility() {
-  const cards = document.querySelectorAll('#scheduleContainer .game-card.completed');
-  cards.forEach(card => {
-    card.style.display = hideCompleted ? 'none' : '';
+  // Hide or show completed game rows
+  const rows = document.querySelectorAll('#scheduleContainer table tbody tr.completed');
+  rows.forEach(row => {
+    if (hideCompleted) {
+      row.classList.add('hidden');
+    } else {
+      row.classList.remove('hidden');
+    }
   });
   // Update button text
   const toggleBtn = document.getElementById('toggleCompleted');
@@ -447,13 +468,13 @@ function updateScheduleVisibility() {
  * completed games remain at default background color.
  */
 function updateScheduleHighlights() {
-  const cards = document.querySelectorAll('#scheduleContainer .game-card');
-  cards.forEach(card => {
-    const idx = parseInt(card.dataset.index, 10);
+  const rows = document.querySelectorAll('#scheduleContainer table tbody tr');
+  rows.forEach(row => {
+    const idx = parseInt(row.dataset.index, 10);
     if (Object.prototype.hasOwnProperty.call(userPicks, idx)) {
-      card.classList.add('selected');
+      row.classList.add('selected');
     } else {
-      card.classList.remove('selected');
+      row.classList.remove('selected');
     }
   });
 }
