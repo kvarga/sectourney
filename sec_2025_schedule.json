@@ -403,17 +403,17 @@
     "date": "2025-11-15",
     "homeTeam": "Ole Miss",
     "awayTeam": "Florida",
-    "winner": null,
-    "homeScore": null,
-    "awayScore": null
+    "winner": "Ole Miss",
+    "homeScore": 34,
+    "awayScore": 24
   },
   {
     "date": "2025-11-15",
     "homeTeam": "Georgia",
     "awayTeam": "Texas",
-    "winner": null,
-    "homeScore": null,
-    "awayScore": null
+    "winner": "Georgia",
+    "homeScore": 35,
+    "awayScore": 10
   },
   {
     "date": "2025-11-15",
