@@ -65,7 +65,7 @@ const scheduleData = [
   {date:'2025-11-08', homeTeam:'Vanderbilt', awayTeam:'LSU', winner:'Vanderbilt', homeScore:31, awayScore:24},
   {date:'2025-11-08', homeTeam:'Missouri', awayTeam:'Texas A&M', winner:'Texas A&M', homeScore:17, awayScore:38},
   {date:'2025-11-08', homeTeam:'Alabama', awayTeam:'Oklahoma', winner:'Oklahoma', homeScore:21, awayScore:23},
-  {date:'2025-11-15', homeTeam:'LSU', awayTeam:'Arkansas', winner:null, homeScore:null, awayScore:null},
+  {date:'2025-11-15', homeTeam:'LSU', awayTeam:'Arkansas', winner:'LSU', homeScore:23, awayScore:22},
   {date:'2025-11-15', homeTeam:'Ole Miss', awayTeam:'Florida', winner:null, homeScore:null, awayScore:null},
   {date:'2025-11-15', homeTeam:'Georgia', awayTeam:'Texas', winner:null, homeScore:null, awayScore:null},
   {date:'2025-11-15', homeTeam:'Texas A&M', awayTeam:'South Carolina', winner:'Texas A&M', homeScore:31, awayScore:30},
