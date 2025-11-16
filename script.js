@@ -4,90 +4,26 @@
  * Tiebreakers for teams with the same conference record:
  *  A. Head-to-head competition among the tied teams
  *  B. Record versus all common Conference opponents among the tied teams
- *  C. Record against highest placed common Conference opponent in the
- *     Conference standings – simplified here to a fixed priority list:
- *       Texas A&M, Ole Miss, Georgia, Alabama, Texas
  *  D. Cumulative Conference winning percentage of all Conference opponents
  *     among the tied teams
+ *  C. Record against highest (best) placed common Conference opponent in the
+ *     Conference standings – simplified here to a fixed priority list:
+ *       Texas A&M, Ole Miss, Georgia, Alabama, Texas
+ *
+ * Note: For a tied group, we apply A→B→D→C to the whole group and
+ * recursively break it into subgroups. That means in your TAMU/UGA/OM/Bama
+ * scenario, rule D splits off Georgia from the 7–1 group, then rule C
+ * breaks Ole Miss vs Alabama via Texas (#5) just like the reference site.
  */
 
 // Global state
 let scheduleData = [];
 
-// Fallback schedule data used if fetching sec_2025_schedule.json via fetch
-// fails (e.g. when opening from file:// where fetch is blocked).
-const fallbackScheduleData = [
-  {"date":"2025-09-06","homeTeam":"Tennessee","awayTeam":"Georgia","winner":"Georgia","homeScore":41,"awayScore":44},
-  {"date":"2025-09-13","homeTeam":"Georgia","awayTeam":"Alabama","winner":"Alabama","homeScore":21,"awayScore":24},
-  {"date":"2025-09-13","homeTeam":"Ole Miss","awayTeam":"Arkansas","winner":"Ole Miss","homeScore":41,"awayScore":35},
-  {"date":"2025-09-13","homeTeam":"LSU","awayTeam":"Florida","winner":"LSU","homeScore":20,"awayScore":10},
-  {"date":"2025-09-13","homeTeam":"South Carolina","awayTeam":"Vanderbilt","winner":"Vanderbilt","homeScore":7,"awayScore":31},
-  {"date":"2025-09-13","homeTeam":"Oklahoma","awayTeam":"Auburn","winner":"Oklahoma","homeScore":24,"awayScore":17},
-  {"date":"2025-09-20","homeTeam":"Alabama","awayTeam":"Vanderbilt","winner":"Alabama","homeScore":30,"awayScore":14},
-  {"date":"2025-09-20","homeTeam":"Kentucky","awayTeam":"Ole Miss","winner":"Ole Miss","homeScore":23,"awayScore":30},
-  {"date":"2025-09-20","homeTeam":"Georgia","awayTeam":"Kentucky","winner":"Georgia","homeScore":35,"awayScore":14},
-  {"date":"2025-09-20","homeTeam":"Missouri","awayTeam":"Vanderbilt","winner":"Vanderbilt","homeScore":10,"awayScore":17},
-  {"date":"2025-09-20","homeTeam":"Missouri","awayTeam":"South Carolina","winner":"Missouri","homeScore":29,"awayScore":20},
-  {"date":"2025-09-20","homeTeam":"Florida","awayTeam":"Texas","winner":"Florida","homeScore":29,"awayScore":21},
-  {"date":"2025-09-27","homeTeam":"Missouri","awayTeam":"Alabama","winner":"Alabama","homeScore":24,"awayScore":27},
-  {"date":"2025-09-27","homeTeam":"Tennessee","awayTeam":"Arkansas","winner":"Tennessee","homeScore":34,"awayScore":31},
-  {"date":"2025-09-27","homeTeam":"Auburn","awayTeam":"Georgia","winner":"Georgia","homeScore":10,"awayScore":20},
-  {"date":"2025-09-27","homeTeam":"Texas A&M","awayTeam":"Auburn","winner":"Texas A&M","homeScore":16,"awayScore":10},
-  {"date":"2025-09-27","homeTeam":"Texas A&M","awayTeam":"Mississippi State","winner":"Texas A&M","homeScore":31,"awayScore":9},
-  {"date":"2025-09-27","homeTeam":"South Carolina","awayTeam":"Kentucky","winner":"South Carolina","homeScore":35,"awayScore":13},
-  {"date":"2025-09-27","homeTeam":"Mississippi State","awayTeam":"Tennessee","winner":"Tennessee","homeScore":34,"awayScore":41},
-  {"date":"2025-10-04","homeTeam":"Auburn","awayTeam":"Missouri","winner":"Missouri","homeScore":17,"awayScore":23},
-  {"date":"2025-10-04","homeTeam":"Florida","awayTeam":"Mississippi State","winner":"Florida","homeScore":23,"awayScore":21},
-  {"date":"2025-10-04","homeTeam":"Arkansas","awayTeam":"Texas A&M","winner":"Texas A&M","homeScore":42,"awayScore":45},
-  {"date":"2025-10-04","homeTeam":"Ole Miss","awayTeam":"LSU","winner":"Ole Miss","homeScore":24,"awayScore":19},
-  {"date":"2025-10-04","homeTeam":"Texas","awayTeam":"Oklahoma","winner":"Texas","homeScore":23,"awayScore":6},
-  {"date":"2025-10-04","homeTeam":"Texas A&M","awayTeam":"Florida","winner":"Texas A&M","homeScore":34,"awayScore":17},
-  {"date":"2025-10-11","homeTeam":"Alabama","awayTeam":"Tennessee","winner":"Alabama","homeScore":37,"awayScore":20},
-  {"date":"2025-10-11","homeTeam":"Georgia","awayTeam":"Ole Miss","winner":"Georgia","homeScore":43,"awayScore":35},
-  {"date":"2025-10-11","homeTeam":"Arkansas","awayTeam":"Auburn","winner":"Auburn","homeScore":24,"awayScore":33},
-  {"date":"2025-10-11","homeTeam":"LSU","awayTeam":"South Carolina","winner":"LSU","homeScore":20,"awayScore":10},
-  {"date":"2025-10-18","homeTeam":"Kentucky","awayTeam":"Texas","winner":"Texas","homeScore":13,"awayScore":16},
-  {"date":"2025-10-18","homeTeam":"Auburn","awayTeam":"Kentucky","winner":"Kentucky","homeScore":3,"awayScore":10},
-  {"date":"2025-10-18","homeTeam":"Mississippi State","awayTeam":"Texas","winner":"Texas","homeScore":38,"awayScore":45},
-  {"date":"2025-10-18","homeTeam":"South Carolina","awayTeam":"Oklahoma","winner":"Oklahoma","homeScore":7,"awayScore":26},
-  {"date":"2025-10-18","homeTeam":"Arkansas","awayTeam":"Mississippi State","winner":"Mississippi State","homeScore":35,"awayScore":38},
-  {"date":"2025-10-25","homeTeam":"Georgia","awayTeam":"Florida","winner":"Georgia","homeScore":24,"awayScore":20},
-  {"date":"2025-10-25","homeTeam":"South Carolina","awayTeam":"Alabama","winner":"Alabama","homeScore":22,"awayScore":29},
-  {"date":"2025-10-25","homeTeam":"Oklahoma","awayTeam":"Ole Miss","winner":"Ole Miss","homeScore":26,"awayScore":34},
-  {"date":"2025-10-25","homeTeam":"Kentucky","awayTeam":"Tennessee","winner":"Tennessee","homeScore":34,"awayScore":56},
-  {"date":"2025-10-25","homeTeam":"LSU","awayTeam":"Texas A&M","winner":"Texas A&M","homeScore":25,"awayScore":49},
-  {"date":"2025-11-01","homeTeam":"Vanderbilt","awayTeam":"Auburn","winner":"Vanderbilt","homeScore":45,"awayScore":38},
-  {"date":"2025-11-01","homeTeam":"Mississippi State","awayTeam":"Georgia","winner":"Georgia","homeScore":21,"awayScore":41},
-  {"date":"2025-11-01","homeTeam":"Ole Miss","awayTeam":"South Carolina","winner":"Ole Miss","homeScore":30,"awayScore":14},
-  {"date":"2025-11-01","homeTeam":"Tennessee","awayTeam":"Oklahoma","winner":"Oklahoma","homeScore":27,"awayScore":33},
-  {"date":"2025-11-01","homeTeam":"Alabama","awayTeam":"LSU","winner":"Alabama","homeScore":20,"awayScore":9},
-  {"date":"2025-11-01","homeTeam":"Texas","awayTeam":"Vanderbilt","winner":"Texas","homeScore":34,"awayScore":31},
-  {"date":"2025-11-08","homeTeam":"Kentucky","awayTeam":"Florida","winner":"Kentucky","homeScore":38,"awayScore":7},
-  {"date":"2025-11-08","homeTeam":"Vanderbilt","awayTeam":"LSU","winner":"Vanderbilt","homeScore":31,"awayScore":24},
-  {"date":"2025-11-08","homeTeam":"Missouri","awayTeam":"Texas A&M","winner":"Texas A&M","homeScore":17,"awayScore":38},
-  {"date":"2025-11-08","homeTeam":"Alabama","awayTeam":"Oklahoma","winner":"Oklahoma","homeScore":21,"awayScore":23},
-  {"date":"2025-11-15","homeTeam":"LSU","awayTeam":"Arkansas","winner":"LSU","homeScore":23,"awayScore":22},
-  {"date":"2025-11-15","homeTeam":"Ole Miss","awayTeam":"Florida","winner":null,"homeScore":null,"awayScore":null},
-  {"date":"2025-11-15","homeTeam":"Georgia","awayTeam":"Texas","winner":null,"homeScore":null,"awayScore":null},
-  {"date":"2025-11-15","homeTeam":"Texas A&M","awayTeam":"South Carolina","winner":"Texas A&M","homeScore":31,"awayScore":30},
-  {"date":"2025-11-22","homeTeam":"Missouri","awayTeam":"Mississippi State","winner":null,"homeScore":null,"awayScore":null},
-  {"date":"2025-11-22","homeTeam":"Florida","awayTeam":"Tennessee","winner":null,"homeScore":null,"awayScore":null},
-  {"date":"2025-11-22","homeTeam":"Texas","awayTeam":"Arkansas","winner":null,"homeScore":null,"awayScore":null},
-  {"date":"2025-11-22","homeTeam":"Vanderbilt","awayTeam":"Kentucky","winner":null,"homeScore":null,"awayScore":null},
-  {"date":"2025-11-22","homeTeam":"Oklahoma","awayTeam":"Missouri","winner":null,"homeScore":null,"awayScore":null},
-  {"date":"2025-11-27","homeTeam":"Mississippi State","awayTeam":"Ole Miss","winner":null,"homeScore":null,"awayScore":null},
-  {"date":"2025-11-28","homeTeam":"Texas","awayTeam":"Texas A&M","winner":null,"homeScore":null,"awayScore":null},
-  {"date":"2025-11-29","homeTeam":"Auburn","awayTeam":"Alabama","winner":null,"homeScore":null,"awayScore":null},
-  {"date":"2025-11-29","homeTeam":"Tennessee","awayTeam":"Vanderbilt","winner":null,"homeScore":null,"awayScore":null},
-  {"date":"2025-11-29","homeTeam":"Arkansas","awayTeam":"Missouri","winner":null,"homeScore":null,"awayScore":null},
-  {"date":"2025-11-29","homeTeam":"Oklahoma","awayTeam":"LSU","winner":null,"homeScore":null,"awayScore":null}
-];
-
 // Global error handler
-if (typeof window !== 'undefined') {
-  window.onerror = function(message, source, lineno, colno, error) {
-    console.error('Global error handler:', message, 'at', lineno + ':' + colno, 'source:', source, 'error:', error);
-    showError('JS Error: ' + message + ' at ' + lineno + ':' + colno);
+if (typeof window !== "undefined") {
+  window.onerror = function (message, source, lineno, colno, error) {
+    console.error("Global error handler:", message, "at", lineno + ":" + colno, "source:", source, "error:", error);
+    showError("JS Error: " + message + " at " + lineno + ":" + colno);
   };
 }
 
@@ -96,88 +32,83 @@ const userPicks = {};
 let hideCompleted = true;
 
 // Entry point
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener("DOMContentLoaded", () => {
   init();
 });
 
-/**
- * Initialize app: load schedule, build UI, wire controls.
- */
 async function init() {
+  console.log("Initializing SEC Scenario Simulator...");
+  console.log("Attempting to load schedule from sec_2025_schedule.json...");
+
   try {
-    console.log('Initializing SEC Scenario Simulator...');
-    console.log('Attempting to load schedule from sec_2025_schedule.json...');
+    const response = await fetch("sec_2025_schedule.json");
 
-    let dataLoaded = false;
+    if (!response.ok) {
+      console.error(
+        "Failed to load sec_2025_schedule.json. HTTP status:",
+        response.status,
+        response.statusText
+      );
+      showError("Could not load sec_2025_schedule.json (HTTP error). The simulator cannot run.");
 
-    try {
-      const response = await fetch('sec_2025_schedule.json');
-      if (!response.ok) {
-        console.error('Failed to load sec_2025_schedule.json. HTTP status:', response.status, response.statusText);
-        throw new Error('non-200 response');
-      }
-      scheduleData = await response.json();
-      dataLoaded = true;
-      console.log('Loaded schedule from sec_2025_schedule.json. Games:', scheduleData.length);
-    } catch (fetchErr) {
-      console.warn('Unable to fetch schedule JSON, falling back to embedded data.', fetchErr);
-      console.log('Using embedded fallback schedule data. Games:', fallbackScheduleData.length);
-      scheduleData = fallbackScheduleData.slice();
+      return; // STOP — do not continue building schedule
     }
 
-    if (!dataLoaded) {
-      console.log('Schedule source: embedded fallback JSON.');
-    } else {
-      console.log('Schedule source: external sec_2025_schedule.json file.');
-    }
+    scheduleData = await response.json();
+    console.log("Loaded schedule from sec_2025_schedule.json. Games:", scheduleData.length);
 
-    // Extract unique list of teams
-    const teamsSet = new Set();
-    scheduleData.forEach(game => {
-      teamsSet.add(game.homeTeam);
-      teamsSet.add(game.awayTeam);
-    });
-    teams = Array.from(teamsSet).sort();
-
-    buildSchedule();
-    updateStandings();
-
-    const toggleBtn = document.getElementById('toggleCompleted');
-    if (toggleBtn) {
-      toggleBtn.addEventListener('click', () => {
-        hideCompleted = !hideCompleted;
-        updateScheduleVisibility();
-      });
-    }
-
-    const resetBtn = document.getElementById('resetPicks');
-    if (resetBtn) {
-      resetBtn.addEventListener('click', () => {
-        Object.keys(userPicks).forEach(key => delete userPicks[key]);
-        const radios = document.querySelectorAll('#scheduleContainer input[type="radio"]');
-        radios.forEach(radio => {
-          radio.checked = (radio.value === '');
-        });
-        console.log('User picks reset to Toss-up for all remaining games.');
-        updateStandings();
-      });
-    }
   } catch (err) {
-    console.error('Fatal error during init:', err);
-    showError(err.message);
+    console.error("Error loading schedule JSON:", err);
+    showError("Failed to load sec_2025_schedule.json. The simulator cannot run.");
+    return; // STOP setup
+  }
+
+  // Extract unique list of teams
+  const teamsSet = new Set();
+  scheduleData.forEach((game) => {
+    teamsSet.add(game.homeTeam);
+    teamsSet.add(game.awayTeam);
+  });
+  teams = Array.from(teamsSet).sort();
+
+  // Build UI
+  buildSchedule();
+  updateStandings();
+
+  // Wire up buttons
+  const toggleBtn = document.getElementById("toggleCompleted");
+  if (toggleBtn) {
+    toggleBtn.addEventListener("click", () => {
+      hideCompleted = !hideCompleted;
+      updateScheduleVisibility();
+    });
+  }
+
+  const resetBtn = document.getElementById("resetPicks");
+  if (resetBtn) {
+    resetBtn.addEventListener("click", () => {
+      Object.keys(userPicks).forEach((key) => delete userPicks[key]);
+      const radios = document.querySelectorAll("#scheduleContainer input[type='radio']");
+      radios.forEach((radio) => {
+        radio.checked = radio.value === "";
+      });
+      console.log("User picks reset to Toss-up for all remaining games.");
+      updateStandings();
+    });
   }
 }
+
 
 /**
  * Show error banner at top.
  */
 function showError(msg) {
-  const div = document.createElement('div');
-  div.style.backgroundColor = '#8b0000';
-  div.style.color = '#ffffff';
-  div.style.padding = '0.5rem';
-  div.style.marginBottom = '0.5rem';
-  div.textContent = 'Error: ' + msg;
+  const div = document.createElement("div");
+  div.style.backgroundColor = "#8b0000";
+  div.style.color = "#ffffff";
+  div.style.padding = "0.5rem";
+  div.style.marginBottom = "0.5rem";
+  div.textContent = "Error: " + msg;
   document.body.prepend(div);
 }
 
@@ -195,53 +126,53 @@ function forEachResolvedGame(cb) {
  * Build the schedule table.
  */
 function buildSchedule() {
-  const container = document.getElementById('scheduleContainer');
+  const container = document.getElementById("scheduleContainer");
   if (!container) return;
 
-  container.innerHTML = '';
+  container.innerHTML = "";
 
-  const table = document.createElement('table');
-  const thead = document.createElement('thead');
-  const headerRow = document.createElement('tr');
-  ['Date','Matchup','Result/Pick'].forEach(label => {
-    const th = document.createElement('th');
+  const table = document.createElement("table");
+  const thead = document.createElement("thead");
+  const headerRow = document.createElement("tr");
+  ["Date", "Matchup", "Result/Pick"].forEach((label) => {
+    const th = document.createElement("th");
     th.textContent = label;
     headerRow.appendChild(th);
   });
   thead.appendChild(headerRow);
   table.appendChild(thead);
 
-  const tbody = document.createElement('tbody');
+  const tbody = document.createElement("tbody");
 
   scheduleData.forEach((game, idx) => {
-    const row = document.createElement('tr');
+    const row = document.createElement("tr");
     row.dataset.index = idx;
     if (game.winner) {
-      row.classList.add('completed');
+      row.classList.add("completed");
     }
 
-    const dateCell = document.createElement('td');
+    const dateCell = document.createElement("td");
     dateCell.textContent = game.date;
     row.appendChild(dateCell);
 
-    const matchupCell = document.createElement('td');
+    const matchupCell = document.createElement("td");
     matchupCell.textContent = `${game.awayTeam} @ ${game.homeTeam}`;
     row.appendChild(matchupCell);
 
-    const pickCell = document.createElement('td');
+    const pickCell = document.createElement("td");
 
     if (game.winner) {
-      const awaySpan = document.createElement('span');
+      const awaySpan = document.createElement("span");
       awaySpan.textContent = `${game.awayTeam} (${game.awayScore})`;
-      const separator = document.createElement('span');
-      separator.textContent = ' @ ';
-      const homeSpan = document.createElement('span');
+      const separator = document.createElement("span");
+      separator.textContent = " @ ";
+      const homeSpan = document.createElement("span");
       homeSpan.textContent = `${game.homeTeam} (${game.homeScore})`;
 
       if (game.winner === game.awayTeam) {
-        awaySpan.classList.add('winner');
+        awaySpan.classList.add("winner");
       } else {
-        homeSpan.classList.add('winner');
+        homeSpan.classList.add("winner");
       }
 
       pickCell.appendChild(awaySpan);
@@ -249,26 +180,26 @@ function buildSchedule() {
       pickCell.appendChild(homeSpan);
     } else {
       function createPill(labelText, value, defaultChecked) {
-        const label = document.createElement('label');
-        label.className = 'pill';
+        const label = document.createElement("label");
+        label.className = "pill";
 
-        const input = document.createElement('input');
-        input.type = 'radio';
+        const input = document.createElement("input");
+        input.type = "radio";
         input.name = `game-${idx}`;
         input.value = value;
         if (defaultChecked) input.checked = true;
 
-        input.addEventListener('change', () => {
+        input.addEventListener("change", () => {
           if (value) {
             userPicks[idx] = value;
           } else {
             delete userPicks[idx];
           }
-          console.log(`User pick for game ${idx}:`, value || 'Toss-up');
+          console.log(`User pick for game ${idx}:`, value || "Toss-up");
           updateStandings();
         });
 
-        const span = document.createElement('span');
+        const span = document.createElement("span");
         span.textContent = labelText;
 
         label.appendChild(input);
@@ -277,7 +208,7 @@ function buildSchedule() {
       }
 
       pickCell.appendChild(createPill(game.awayTeam, game.awayTeam, false));
-      pickCell.appendChild(createPill('Toss-up', '', true));
+      pickCell.appendChild(createPill("Toss-up", "", true));
       pickCell.appendChild(createPill(game.homeTeam, game.homeTeam, false));
     }
 
@@ -295,8 +226,8 @@ function buildSchedule() {
  */
 function computeStandings() {
   const record = {};
-  teams.forEach(team => {
-    record[team] = {wins: 0, losses: 0, pct: 0};
+  teams.forEach((team) => {
+    record[team] = { wins: 0, losses: 0, pct: 0 };
   });
 
   scheduleData.forEach((game, idx) => {
@@ -306,20 +237,106 @@ function computeStandings() {
     }
 
     if (winner) {
-      const loser = (winner === game.homeTeam ? game.awayTeam : game.homeTeam);
+      const loser = winner === game.homeTeam ? game.awayTeam : game.homeTeam;
       record[winner].wins++;
       record[loser].losses++;
     }
   });
 
-  teams.forEach(team => {
+  teams.forEach((team) => {
     const r = record[team];
     const games = r.wins + r.losses;
     r.pct = games ? r.wins / games : 0;
   });
 
-  const order = teams.slice().sort((a, b) => compareTeamsWithTiebreakers(a, b, record));
-  return {record, order};
+  const order = rankTeamsByPctAndTiebreakers(record);
+  return { record, order };
+}
+
+/**
+ * Rank all teams by pct, then apply group tiebreakers recursively.
+ */
+function rankTeamsByPctAndTiebreakers(record) {
+  const pctMap = {};
+  teams.forEach((team) => {
+    const pct = record[team].pct;
+    if (!pctMap[pct]) pctMap[pct] = [];
+    pctMap[pct].push(team);
+  });
+
+  const uniquePcts = Object.keys(pctMap)
+    .map(parseFloat)
+    .sort((a, b) => b - a);
+
+  const ordered = [];
+  uniquePcts.forEach((pct) => {
+    const group = pctMap[pct];
+    if (group.length === 1) {
+      ordered.push(group[0]);
+    } else {
+      const resolved = resolveTieGroup(group, record);
+      ordered.push(...resolved);
+    }
+  });
+
+  return ordered;
+}
+
+/**
+ * Resolve a tie within a group of teams that all have the same pct.
+ * Applies A→B→D→C; at each step, if some subset clearly has the best
+ * metric, recursively rank that subset above the others.
+ */
+function resolveTieGroup(group, record) {
+  if (group.length <= 1) return group.slice();
+
+  const separateBy = (metricFn, skipIfNoData = true) => {
+    const metrics = {};
+    let best = -Infinity;
+    let hasData = false;
+
+    group.forEach((team) => {
+      const v = metricFn(team, group);
+      metrics[team] = v;
+      if (v !== null && v !== undefined && !Number.isNaN(v)) {
+        hasData = true;
+        if (v > best) best = v;
+      }
+    });
+
+    if (skipIfNoData && !hasData) return null;
+
+    const bestTeams = group.filter((t) => metrics[t] === best);
+    if (bestTeams.length > 0 && bestTeams.length < group.length) {
+      const others = group.filter((t) => metrics[t] !== best);
+      return resolveTieGroup(bestTeams, record).concat(resolveTieGroup(others, record));
+    }
+
+    return null;
+  };
+
+  // A. Head-to-head within the tied group
+  let res = separateBy((team, tiedTeams) => headToHeadWinPct(team, tiedTeams));
+  if (res) return res;
+
+  // B. Record vs common opponents among the tied group
+  const commonOpps = getCommonOpponents(group);
+  if (commonOpps.length > 0) {
+    res = separateBy((team) => recordVsOpponentList(team, commonOpps));
+    if (res) return res;
+  }
+
+  // D. Cumulative opponents’ conference win%
+  res = separateBy((team) => cumulativeOppWinPct(team, record));
+  if (res) return res;
+
+  // C. Record vs highest-placed common opponent – approximate via priority list
+  const priorityOrder = ["Texas A&M", "Ole Miss", "Georgia", "Alabama", "Texas"];
+  res = separateBy((team) => recordVsPriorityOpp(team, priorityOrder));
+  if (res) return res;
+
+  // Final fallback: alphabetical
+  return group.slice().sort((a, b) => a.localeCompare(b));
 }
 
 /**
@@ -327,11 +344,13 @@ function computeStandings() {
  */
 function computeUnpickedCounts() {
   const counts = {};
-  teams.forEach(team => counts[team] = 0);
+  teams.forEach((team) => (counts[team] = 0));
 
   scheduleData.forEach((game, idx) => {
     if (!game.winner) {
-      const pick = Object.prototype.hasOwnProperty.call(userPicks, idx) ? userPicks[idx] : null;
+      const pick = Object.prototype.hasOwnProperty.call(userPicks, idx)
+        ? userPicks[idx]
+        : null;
       if (!pick) {
         counts[game.homeTeam]++;
         counts[game.awayTeam]++;
@@ -350,7 +369,7 @@ function headToHeadWinPct(team, tiedTeams) {
   let games = 0;
 
   forEachResolvedGame((game, idx, winner) => {
-    const {homeTeam, awayTeam} = game;
+    const { homeTeam, awayTeam } = game;
     if (!winner) return;
     if (tiedTeams.includes(homeTeam) && tiedTeams.includes(awayTeam)) {
       if (homeTeam === team || awayTeam === team) {
@@ -368,10 +387,10 @@ function headToHeadWinPct(team, tiedTeams) {
  */
 function getCommonOpponents(tiedTeams) {
   const oppMap = {};
-  tiedTeams.forEach(t => oppMap[t] = new Set());
+  tiedTeams.forEach((t) => (oppMap[t] = new Set()));
 
   scheduleData.forEach((game) => {
-    const {homeTeam, awayTeam} = game;
+    const { homeTeam, awayTeam } = game;
     if (tiedTeams.includes(homeTeam)) {
       oppMap[homeTeam].add(awayTeam);
     }
@@ -381,12 +400,12 @@ function getCommonOpponents(tiedTeams) {
   });
 
   let common = null;
-  tiedTeams.forEach(team => {
+  tiedTeams.forEach((team) => {
     const set = oppMap[team];
     if (common === null) {
       common = new Set([...set]);
     } else {
-      common = new Set([...common].filter(x => set.has(x)));
+      common = new Set([...common].filter((x) => set.has(x)));
     }
   });
 
@@ -404,7 +423,7 @@ function recordVsOpponentList(team, opponents) {
 
   forEachResolvedGame((game, idx, winner) => {
     if (!winner) return;
-    const {homeTeam, awayTeam} = game;
+    const { homeTeam, awayTeam } = game;
 
     if (homeTeam === team && oppSet.has(awayTeam)) {
       games++;
@@ -425,13 +444,36 @@ function recordVsOpponentList(team, opponents) {
 function recordVsPriorityOpp(team, priorityList) {
   for (const opp of priorityList) {
     const pct = recordVsOpponentList(team, [opp]);
-    if (pct > 0 || pct < 0) { // any games played (pct != 0 OR 0 with losses)
-      // We can't distinguish 0 with no games from 0 with all losses here,
-      // but that's acceptable for our simplified rule.
-      return pct;
+    // If they've played that opponent at least once, use that pct.
+    // (0 with games played is meaningful; 0 with no games won't happen here.)
+    if (!Number.isNaN(pct)) {
+      // We still need a way to distinguish "no games" from "0 with games";
+      // the implementation of recordVsOpponentList only returns 0 if
+      // games > 0, so this is fine.
+      if (pct !== 0 || pct === 0) {
+        const gamesPlayed = hasPlayedOpponent(team, opp);
+        if (gamesPlayed) return pct;
+      }
     }
   }
   return 0;
+}
+
+/**
+ * Helper to see if team has played a given opponent.
+ */
+function hasPlayedOpponent(team, opp) {
+  let played = false;
+  forEachResolvedGame((game) => {
+    const { homeTeam, awayTeam } = game;
+    if (
+      (homeTeam === team && awayTeam === opp) ||
+      (awayTeam === team && homeTeam === opp)
+    ) {
+      played = true;
+    }
+  });
+  return played;
 }
 
 /**
@@ -440,8 +482,8 @@ function recordVsPriorityOpp(team, priorityList) {
 function cumulativeOppWinPct(team, record) {
   const oppSet = new Set();
 
-  scheduleData.forEach((game, idx) => {
-    const {homeTeam, awayTeam} = game;
+  scheduleData.forEach((game) => {
+    const { homeTeam, awayTeam } = game;
     if (homeTeam === team) oppSet.add(awayTeam);
     if (awayTeam === team) oppSet.add(homeTeam);
   });
@@ -449,7 +491,7 @@ function cumulativeOppWinPct(team, record) {
   let totalPct = 0;
   let count = 0;
 
-  oppSet.forEach(opp => {
+  oppSet.forEach((opp) => {
     const r = record[opp];
     if (!r) return;
     const games = r.wins + r.losses;
@@ -459,49 +501,6 @@ function cumulativeOppWinPct(team, record) {
   });
 
   return count ? totalPct / count : 0;
-}
-
-/**
- * Comparator that applies A–D tiebreakers for teams with the same record.
- */
-function compareTeamsWithTiebreakers(a, b, record) {
-  const pctA = record[a].pct;
-  const pctB = record[b].pct;
-
-  if (pctA !== pctB) return pctB - pctA;
-
-  // Teams tied on win%: build the tied group at this pct
-  const tiedTeams = teams.filter(t => record[t].pct === pctA);
-  if (tiedTeams.length <= 1) {
-    return a.localeCompare(b);
-  }
-
-  // A. Head-to-head among tied teams
-  const h2hA = headToHeadWinPct(a, tiedTeams);
-  const h2hB = headToHeadWinPct(b, tiedTeams);
-  if (h2hA !== h2hB) return h2hB - h2hA;
-
-  // B. Record vs all common conference opponents among tied teams
-  const commonOpps = getCommonOpponents(tiedTeams);
-  if (commonOpps.length > 0) {
-    const commonA = recordVsOpponentList(a, commonOpps);
-    const commonB = recordVsOpponentList(b, commonOpps);
-    if (commonA !== commonB) return commonB - commonA;
-  }
-
-  // C. Record vs highest-placed common conference opponent
-  const priorityOrder = ['Texas A&M', 'Ole Miss', 'Georgia', 'Alabama', 'Texas'];
-  const priA = recordVsPriorityOpp(a, priorityOrder);
-  const priB = recordVsPriorityOpp(b, priorityOrder);
-  if (priA !== priB) return priB - priA;
-
-  // D. Cumulative opponents’ win%
-  const sosA = cumulativeOppWinPct(a, record);
-  const sosB = cumulativeOppWinPct(b, record);
-  if (sosA !== sosB) return sosB - sosA;
-
-  // Final fallback: alphabetical
-  return a.localeCompare(b);
 }
 
 /**
@@ -516,15 +515,15 @@ function computeScenarioCounts() {
   });
 
   const counts = {};
-  teams.forEach(t => {
-    counts[t] = {first: 0, second: 0};
+  teams.forEach((t) => {
+    counts[t] = { first: 0, second: 0 };
   });
 
   const totalPerms = Math.pow(2, remaining.length);
 
   function recurse(i) {
     if (i === remaining.length) {
-      const {order} = computeStandings();
+      const { order } = computeStandings();
       const first = order[0];
       const second = order[1];
       counts[first].first++;
@@ -545,69 +544,69 @@ function computeScenarioCounts() {
   }
 
   recurse(0);
-  return {counts, total: totalPerms};
+  return { counts, total: totalPerms };
 }
 
 /**
  * Update standings table + scenario summary.
  */
 function updateStandings() {
-  const {record, order} = computeStandings();
+  const { record, order } = computeStandings();
   const unpicked = computeUnpickedCounts();
-  const {counts: champCounts, total: totalPerms} = computeScenarioCounts();
+  const { counts: champCounts, total: totalPerms } = computeScenarioCounts();
 
-  const container = document.getElementById('standingsContainer');
+  const container = document.getElementById("standingsContainer");
   if (!container) return;
-  container.innerHTML = '';
+  container.innerHTML = "";
 
-  const table = document.createElement('table');
-  const thead = document.createElement('thead');
-  const headRow = document.createElement('tr');
-  ['Rank','Team','Wins','Losses','Unpicked','Top2 %'].forEach(txt => {
-    const th = document.createElement('th');
+  const table = document.createElement("table");
+  const thead = document.createElement("thead");
+  const headRow = document.createElement("tr");
+  ["Rank", "Team", "Wins", "Losses", "Unpicked", "Top2 %"].forEach((txt) => {
+    const th = document.createElement("th");
     th.textContent = txt;
     headRow.appendChild(th);
   });
   thead.appendChild(headRow);
   table.appendChild(thead);
 
-  const tbody = document.createElement('tbody');
+  const tbody = document.createElement("tbody");
 
   order.forEach((team, index) => {
-    const tr = document.createElement('tr');
+    const tr = document.createElement("tr");
 
     const firstCount = champCounts[team].first;
     const secondCount = champCounts[team].second;
     const pct = totalPerms > 0 ? ((firstCount + secondCount) / totalPerms) * 100 : 0;
 
     if (pct === 100) {
-      tr.classList.add('certain');
+      tr.classList.add("certain");
     } else if (pct === 0) {
-      tr.classList.add('noChance');
+      tr.classList.add("noChance");
     }
 
-    const rankCell = document.createElement('td');
+    const rankCell = document.createElement("td");
     rankCell.textContent = index + 1;
     tr.appendChild(rankCell);
 
-    const teamCell = document.createElement('td');
+    const teamCell = document.createElement("td");
     teamCell.textContent = team;
     tr.appendChild(teamCell);
 
-    const winsCell = document.createElement('td');
+    const winsCell = document.createElement("td");
     winsCell.textContent = record[team].wins;
     tr.appendChild(winsCell);
 
-    const lossesCell = document.createElement('td');
+    const lossesCell = document.createElement("td");
     lossesCell.textContent = record[team].losses;
     tr.appendChild(lossesCell);
 
-    const unpickedCell = document.createElement('td');
+    const unpickedCell = document.createElement("td");
     unpickedCell.textContent = unpicked[team];
     tr.appendChild(unpickedCell);
 
-    const pctCell = document.createElement('td');
-    pctCell.textContent = pct.toFixed(1) + '%';
+    const pctCell = document.createElement("td");
+    pctCell.textContent = pct.toFixed(1) + "%";
     tr.appendChild(pctCell);
 
     tbody.appendChild(tr);
@@ -616,7 +615,7 @@ function updateStandings() {
   table.appendChild(tbody);
   container.appendChild(table);
 
-  const summaryDiv = document.getElementById('scenarioSummary');
+  const summaryDiv = document.getElementById("scenarioSummary");
   if (summaryDiv) {
     summaryDiv.textContent = `Total permutations considered: ${totalPerms}`;
   }
@@ -628,18 +627,18 @@ function updateStandings() {
  * Hide/show completed games.
  */
 function updateScheduleVisibility() {
-  const rows = document.querySelectorAll('#scheduleContainer table tbody tr.completed');
-  rows.forEach(row => {
+  const rows = document.querySelectorAll("#scheduleContainer table tbody tr.completed");
+  rows.forEach((row) => {
     if (hideCompleted) {
-      row.classList.add('hidden');
+      row.classList.add("hidden");
     } else {
-      row.classList.remove('hidden');
+      row.classList.remove("hidden");
     }
   });
 
-  const toggleBtn = document.getElementById('toggleCompleted');
+  const toggleBtn = document.getElementById("toggleCompleted");
   if (toggleBtn) {
-    toggleBtn.textContent = hideCompleted ? 'Show Completed Games' : 'Hide Completed Games';
+    toggleBtn.textContent = hideCompleted ? "Show Completed Games" : "Hide Completed Games";
   }
 }
 
@@ -647,13 +646,13 @@ function updateScheduleVisibility() {
  * Highlight picked games.
  */
 function updateScheduleHighlights() {
-  const rows = document.querySelectorAll('#scheduleContainer table tbody tr');
-  rows.forEach(row => {
+  const rows = document.querySelectorAll("#scheduleContainer table tbody tr");
+  rows.forEach((row) => {
     const idx = parseInt(row.dataset.index, 10);
     if (Object.prototype.hasOwnProperty.call(userPicks, idx)) {
-      row.classList.add('selected');
+      row.classList.add("selected");
     } else {
-      row.classList.remove('selected');
+      row.classList.remove("selected");
     }
   });
 }
