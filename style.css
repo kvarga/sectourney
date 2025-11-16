@@ -42,27 +42,25 @@ button:hover {
   background-color: #3a3a3a;
 }
 
-/* Layout for dashboard */
+/* --- CORE LAYOUT: 2 COLUMNS, ALWAYS --- */
 .dashboard {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid !important;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1.5fr); /* left wider than right */
   gap: 1rem;
   align-items: flex-start;
 }
 
-.schedule,
-.standings {
-  flex: 1 1 50%;
-  max-width: 50%;
+/* Left column: Remaining schedule & input boxes */
+.schedule {
+  width: 100% !important;
 }
 
-@media screen and (max-width: 900px) {
-  .schedule,
-  .standings {
-    flex-basis: 100%;
-    max-width: 100%;
-  }
+/* Right column: standings / odds */
+.standings {
+  width: 100% !important;
 }
+
+/* No media query to stack: always side-by-side */
 
 /* Card container */
 .card {
@@ -179,4 +177,24 @@ tr.noChance td {
   margin-top: 0.5rem;
   font-size: 0.85rem;
   color: #bbbbbb;
+}
+
+/* Tighter column widths for Remaining Schedule table */
+#scheduleContainer th:nth-child(1),
+#scheduleContainer td:nth-child(1) {
+  width: 6rem;          /* Date */
+  max-width: 6rem;
+  white-space: nowrap;
+}
+
+#scheduleContainer th:nth-child(2),
+#scheduleContainer td:nth-child(2) {
+  width: 14rem;         /* Matchup */
+  max-width: 14rem;
+}
+
+/* Let the Result/Pick column take the remaining space */
+#scheduleContainer th:nth-child(3),
+#scheduleContainer td:nth-child(3) {
+  width: auto;
 }

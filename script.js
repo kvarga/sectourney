@@ -1,22 +1,21 @@
 /*
  * 2025 SEC Football Scenario Simulator (Standalone JS)
  *
- * This script powers a client‑side dashboard that lets users explore how the
- * remainder of the 2025 SEC football season could play out. It fetches a
- * schedule and results from an external JSON file (sec_2025_schedule.json),
- * renders the remaining games as clickable cards, updates conference
- * standings in real time as the user selects winners, and computes how
- * frequently each team finishes in the top two of the final standings across
- * all permutations of the unplayed games. The standings table highlights
- * teams locked into or out of the championship game.
+ * Tiebreakers for teams with the same conference record:
+ *  A. Head-to-head competition among the tied teams
+ *  B. Record versus all common Conference opponents among the tied teams
+ *  C. Record against highest placed common Conference opponent in the
+ *     Conference standings – simplified here to a fixed priority list:
+ *       Texas A&M, Ole Miss, Georgia, Alabama, Texas
+ *  D. Cumulative Conference winning percentage of all Conference opponents
+ *     among the tied teams
  */
 
 // Global state
 let scheduleData = [];
+
 // Fallback schedule data used if fetching sec_2025_schedule.json via fetch
-// fails (e.g. when opening the page from the file system where browsers
-// restrict file:// fetch requests). This array mirrors the contents of
-// sec_2025_schedule.json and will be used as a last resort.
+// fails (e.g. when opening from file:// where fetch is blocked).
 const fallbackScheduleData = [
   {"date":"2025-09-06","homeTeam":"Tennessee","awayTeam":"Georgia","winner":"Georgia","homeScore":41,"awayScore":44},
   {"date":"2025-09-13","homeTeam":"Georgia","awayTeam":"Alabama","winner":"Alabama","homeScore":21,"awayScore":24},
@@ -84,38 +83,54 @@ const fallbackScheduleData = [
   {"date":"2025-11-29","homeTeam":"Oklahoma","awayTeam":"LSU","winner":null,"homeScore":null,"awayScore":null}
 ];
 
-// Install a global error handler to surface uncaught exceptions to the user.
+// Global error handler
 if (typeof window !== 'undefined') {
   window.onerror = function(message, source, lineno, colno, error) {
+    console.error('Global error handler:', message, 'at', lineno + ':' + colno, 'source:', source, 'error:', error);
     showError('JS Error: ' + message + ' at ' + lineno + ':' + colno);
   };
 }
+
 let teams = [];
 const userPicks = {};
 let hideCompleted = true;
 
-// Entry point once DOM is loaded
+// Entry point
 window.addEventListener('DOMContentLoaded', () => {
   init();
 });
 
 /**
- * Initialize the application by loading the schedule, building the UI and
- * wiring up controls.
+ * Initialize app: load schedule, build UI, wire controls.
  */
 async function init() {
   try {
-    // Load schedule data from the JSON file
+    console.log('Initializing SEC Scenario Simulator...');
+    console.log('Attempting to load schedule from sec_2025_schedule.json...');
+
     let dataLoaded = false;
+
     try {
       const response = await fetch('sec_2025_schedule.json');
-      if (!response.ok) throw new Error('non-200 response');
+      if (!response.ok) {
+        console.error('Failed to load sec_2025_schedule.json. HTTP status:', response.status, response.statusText);
+        throw new Error('non-200 response');
+      }
       scheduleData = await response.json();
       dataLoaded = true;
+      console.log('Loaded schedule from sec_2025_schedule.json. Games:', scheduleData.length);
     } catch (fetchErr) {
       console.warn('Unable to fetch schedule JSON, falling back to embedded data.', fetchErr);
+      console.log('Using embedded fallback schedule data. Games:', fallbackScheduleData.length);
       scheduleData = fallbackScheduleData.slice();
     }
+
+    if (!dataLoaded) {
+      console.log('Schedule source: embedded fallback JSON.');
+    } else {
+      console.log('Schedule source: external sec_2025_schedule.json file.');
+    }
+
     // Extract unique list of teams
     const teamsSet = new Set();
     scheduleData.forEach(game => {
@@ -123,10 +138,10 @@ async function init() {
       teamsSet.add(game.awayTeam);
     });
     teams = Array.from(teamsSet).sort();
-    // Build schedule UI and standings
+
     buildSchedule();
     updateStandings();
-    // Hook up control buttons
+
     const toggleBtn = document.getElementById('toggleCompleted');
     if (toggleBtn) {
       toggleBtn.addEventListener('click', () => {
@@ -134,28 +149,27 @@ async function init() {
         updateScheduleVisibility();
       });
     }
+
     const resetBtn = document.getElementById('resetPicks');
     if (resetBtn) {
       resetBtn.addEventListener('click', () => {
-        // Remove all user picks
         Object.keys(userPicks).forEach(key => delete userPicks[key]);
-        // Reset all radio inputs to the toss‑up option
         const radios = document.querySelectorAll('#scheduleContainer input[type="radio"]');
         radios.forEach(radio => {
           radio.checked = (radio.value === '');
         });
+        console.log('User picks reset to Toss-up for all remaining games.');
         updateStandings();
       });
     }
   } catch (err) {
-    console.error(err);
+    console.error('Fatal error during init:', err);
     showError(err.message);
   }
 }
 
 /**
- * Display a brief error message at the top of the page.
- * @param {string} msg Error text
+ * Show error banner at top.
  */
 function showError(msg) {
   const div = document.createElement('div');
@@ -168,17 +182,24 @@ function showError(msg) {
 }
 
 /**
- * Build the schedule section by creating a card for each game. Completed games
- * show final scores and winners; pending games provide pill-style radio
- * buttons for selecting a winner or leaving the game as a toss-up. The
- * schedule grid is responsive and will wrap cards as space allows.
+ * Helper: iterate all games with resolved winner (official or user pick).
+ */
+function forEachResolvedGame(cb) {
+  scheduleData.forEach((game, idx) => {
+    const winner = game.winner || userPicks[idx];
+    cb(game, idx, winner);
+  });
+}
+
+/**
+ * Build the schedule table.
  */
 function buildSchedule() {
   const container = document.getElementById('scheduleContainer');
   if (!container) return;
-  // Clear existing content
+
   container.innerHTML = '';
-  // Create a table element to host the schedule
+
   const table = document.createElement('table');
   const thead = document.createElement('thead');
   const headerRow = document.createElement('tr');
@@ -189,119 +210,125 @@ function buildSchedule() {
   });
   thead.appendChild(headerRow);
   table.appendChild(thead);
+
   const tbody = document.createElement('tbody');
+
   scheduleData.forEach((game, idx) => {
     const row = document.createElement('tr');
     row.dataset.index = idx;
     if (game.winner) {
       row.classList.add('completed');
     }
-    // Date cell
+
     const dateCell = document.createElement('td');
     dateCell.textContent = game.date;
     row.appendChild(dateCell);
-    // Matchup cell
+
     const matchupCell = document.createElement('td');
     matchupCell.textContent = `${game.awayTeam} @ ${game.homeTeam}`;
     row.appendChild(matchupCell);
-    // Result/Pick cell
+
     const pickCell = document.createElement('td');
+
     if (game.winner) {
-      // Completed game: show final result with winner highlighted
       const awaySpan = document.createElement('span');
       awaySpan.textContent = `${game.awayTeam} (${game.awayScore})`;
       const separator = document.createElement('span');
       separator.textContent = ' @ ';
       const homeSpan = document.createElement('span');
       homeSpan.textContent = `${game.homeTeam} (${game.homeScore})`;
+
       if (game.winner === game.awayTeam) {
         awaySpan.classList.add('winner');
       } else {
         homeSpan.classList.add('winner');
       }
+
       pickCell.appendChild(awaySpan);
       pickCell.appendChild(separator);
       pickCell.appendChild(homeSpan);
     } else {
-      // Pending game: create pill radio buttons for away, toss-up, home
       function createPill(labelText, value, defaultChecked) {
         const label = document.createElement('label');
         label.className = 'pill';
+
         const input = document.createElement('input');
         input.type = 'radio';
         input.name = `game-${idx}`;
         input.value = value;
         if (defaultChecked) input.checked = true;
+
         input.addEventListener('change', () => {
           if (value) {
             userPicks[idx] = value;
           } else {
             delete userPicks[idx];
           }
+          console.log(`User pick for game ${idx}:`, value || 'Toss-up');
           updateStandings();
         });
+
         const span = document.createElement('span');
         span.textContent = labelText;
+
         label.appendChild(input);
         label.appendChild(span);
         return label;
       }
-      // Append away, toss-up, home pills
+
       pickCell.appendChild(createPill(game.awayTeam, game.awayTeam, false));
       pickCell.appendChild(createPill('Toss-up', '', true));
       pickCell.appendChild(createPill(game.homeTeam, game.homeTeam, false));
     }
+
     row.appendChild(pickCell);
     tbody.appendChild(row);
   });
+
   table.appendChild(tbody);
   container.appendChild(table);
   updateScheduleVisibility();
 }
 
 /**
- * Compute each team's record based on official results and current user picks.
- * @returns {{record: Object, order: string[]}} Record map keyed by team and
- *          sorted team order by winning percentage and tiebreakers.
+ * Compute records from results + picks.
  */
 function computeStandings() {
   const record = {};
   teams.forEach(team => {
-    record[team] = {wins: 0, losses: 0};
+    record[team] = {wins: 0, losses: 0, pct: 0};
   });
+
   scheduleData.forEach((game, idx) => {
     let winner = game.winner;
     if (!winner && Object.prototype.hasOwnProperty.call(userPicks, idx)) {
       winner = userPicks[idx];
     }
+
     if (winner) {
       const loser = (winner === game.homeTeam ? game.awayTeam : game.homeTeam);
       record[winner].wins++;
       record[loser].losses++;
     }
   });
-  // Sorting order by winning percentage, head-to-head, then alphabetical
-  const order = teams.slice().sort((a, b) => {
-    const pctA = record[a].wins / (record[a].wins + record[a].losses || 1);
-    const pctB = record[b].wins / (record[b].wins + record[b].losses || 1);
-    if (pctA !== pctB) return pctB - pctA;
-    // Simplified head-to-head tiebreaker for just these two teams
-    const tiedTeams = [a, b];
-    const h2hA = headToHeadWinPct(a, tiedTeams);
-    const h2hB = headToHeadWinPct(b, tiedTeams);
-    if (h2hA !== h2hB) return h2hB - h2hA;
-    return a.localeCompare(b);
+
+  teams.forEach(team => {
+    const r = record[team];
+    const games = r.wins + r.losses;
+    r.pct = games ? r.wins / games : 0;
   });
+
+  const order = teams.slice().sort((a, b) => compareTeamsWithTiebreakers(a, b, record));
   return {record, order};
 }
 
 /**
  * Compute how many unpicked (toss-up) games remain for each team.
- * @returns {Object<string, number>} Map of team to number of unpicked games
  */
 function computeUnpickedCounts() {
   const counts = {};
   teams.forEach(team => counts[team] = 0);
+
   scheduleData.forEach((game, idx) => {
     if (!game.winner) {
       const pick = Object.prototype.hasOwnProperty.call(userPicks, idx) ? userPicks[idx] : null;
@@ -311,35 +338,174 @@ function computeUnpickedCounts() {
       }
     }
   });
+
   return counts;
 }
 
 /**
- * Compute head-to-head win percentage for a team among tied teams.
- * Only considers games that have a final result or a user pick.
- * @param {string} team The team whose head-to-head percentage to compute
- * @param {string[]} tiedTeams Array of tied team names
- * @returns {number} Win percentage in head-to-head games
+ * Head-to-head win% among a group of tied teams (rule A).
  */
 function headToHeadWinPct(team, tiedTeams) {
   let wins = 0;
   let games = 0;
-  scheduleData.forEach((game, idx) => {
-    const winner = game.winner || userPicks[idx];
-    if (!winner) return;
+
+  forEachResolvedGame((game, idx, winner) => {
     const {homeTeam, awayTeam} = game;
+    if (!winner) return;
     if (tiedTeams.includes(homeTeam) && tiedTeams.includes(awayTeam)) {
-      games++;
-      if (winner === team) wins++;
+      if (homeTeam === team || awayTeam === team) {
+        games++;
+        if (winner === team) wins++;
+      }
     }
   });
+
   return games ? wins / games : 0;
 }
 
 /**
- * Compute the number of permutations of remaining games and count how many
- * times each team finishes first or second in those permutations.
- * @returns {{counts: Object<string,{first:number,second:number}>, total: number}}
+ * Common opponents across all tied teams (rule B).
+ */
+function getCommonOpponents(tiedTeams) {
+  const oppMap = {};
+  tiedTeams.forEach(t => oppMap[t] = new Set());
+
+  scheduleData.forEach((game) => {
+    const {homeTeam, awayTeam} = game;
+    if (tiedTeams.includes(homeTeam)) {
+      oppMap[homeTeam].add(awayTeam);
+    }
+    if (tiedTeams.includes(awayTeam)) {
+      oppMap[awayTeam].add(homeTeam);
+    }
+  });
+
+  let common = null;
+  tiedTeams.forEach(team => {
+    const set = oppMap[team];
+    if (common === null) {
+      common = new Set([...set]);
+    } else {
+      common = new Set([...common].filter(x => set.has(x)));
+    }
+  });
+
+  return common ? Array.from(common) : [];
+}
+
+/**
+ * Win% vs a list of opponents.
+ */
+function recordVsOpponentList(team, opponents) {
+  let wins = 0;
+  let games = 0;
+
+  const oppSet = new Set(opponents);
+
+  forEachResolvedGame((game, idx, winner) => {
+    if (!winner) return;
+    const {homeTeam, awayTeam} = game;
+
+    if (homeTeam === team && oppSet.has(awayTeam)) {
+      games++;
+      if (winner === team) wins++;
+    } else if (awayTeam === team && oppSet.has(homeTeam)) {
+      games++;
+      if (winner === team) wins++;
+    }
+  });
+
+  return games ? wins / games : 0;
+}
+
+/**
+ * Rule C: record vs highest-priority opponent among a fixed list.
+ * Priority list is the “best-placed common conference opponents” approximation.
+ */
+function recordVsPriorityOpp(team, priorityList) {
+  for (const opp of priorityList) {
+    const pct = recordVsOpponentList(team, [opp]);
+    if (pct > 0 || pct < 0) { // any games played (pct != 0 OR 0 with losses)
+      // We can't distinguish 0 with no games from 0 with all losses here,
+      // but that's acceptable for our simplified rule.
+      return pct;
+    }
+  }
+  return 0;
+}
+
+/**
+ * Rule D: cumulative opponents' conference win% for this team.
+ */
+function cumulativeOppWinPct(team, record) {
+  const oppSet = new Set();
+
+  scheduleData.forEach((game, idx) => {
+    const {homeTeam, awayTeam} = game;
+    if (homeTeam === team) oppSet.add(awayTeam);
+    if (awayTeam === team) oppSet.add(homeTeam);
+  });
+
+  let totalPct = 0;
+  let count = 0;
+
+  oppSet.forEach(opp => {
+    const r = record[opp];
+    if (!r) return;
+    const games = r.wins + r.losses;
+    const pct = games ? r.wins / games : 0;
+    totalPct += pct;
+    count++;
+  });
+
+  return count ? totalPct / count : 0;
+}
+
+/**
+ * Comparator that applies A–D tiebreakers for teams with the same record.
+ */
+function compareTeamsWithTiebreakers(a, b, record) {
+  const pctA = record[a].pct;
+  const pctB = record[b].pct;
+
+  if (pctA !== pctB) return pctB - pctA;
+
+  // Teams tied on win%: build the tied group at this pct
+  const tiedTeams = teams.filter(t => record[t].pct === pctA);
+  if (tiedTeams.length <= 1) {
+    return a.localeCompare(b);
+  }
+
+  // A. Head-to-head among tied teams
+  const h2hA = headToHeadWinPct(a, tiedTeams);
+  const h2hB = headToHeadWinPct(b, tiedTeams);
+  if (h2hA !== h2hB) return h2hB - h2hA;
+
+  // B. Record vs all common conference opponents among tied teams
+  const commonOpps = getCommonOpponents(tiedTeams);
+  if (commonOpps.length > 0) {
+    const commonA = recordVsOpponentList(a, commonOpps);
+    const commonB = recordVsOpponentList(b, commonOpps);
+    if (commonA !== commonB) return commonB - commonA;
+  }
+
+  // C. Record vs highest-placed common conference opponent
+  const priorityOrder = ['Texas A&M', 'Ole Miss', 'Georgia', 'Alabama', 'Texas'];
+  const priA = recordVsPriorityOpp(a, priorityOrder);
+  const priB = recordVsPriorityOpp(b, priorityOrder);
+  if (priA !== priB) return priB - priA;
+
+  // D. Cumulative opponents’ win%
+  const sosA = cumulativeOppWinPct(a, record);
+  const sosB = cumulativeOppWinPct(b, record);
+  if (sosA !== sosB) return sosB - sosA;
+
+  // Final fallback: alphabetical
+  return a.localeCompare(b);
+}
+
+/**
+ * Enumerate permutations of remaining games and count top-2 finishes.
  */
 function computeScenarioCounts() {
   const remaining = [];
@@ -348,12 +514,14 @@ function computeScenarioCounts() {
       remaining.push(idx);
     }
   });
+
   const counts = {};
   teams.forEach(t => {
     counts[t] = {first: 0, second: 0};
   });
+
   const totalPerms = Math.pow(2, remaining.length);
-  // Use a recursive enumeration to assign winners for each remaining game
+
   function recurse(i) {
     if (i === remaining.length) {
       const {order} = computeStandings();
@@ -363,33 +531,35 @@ function computeScenarioCounts() {
       counts[second].second++;
       return;
     }
+
     const idx = remaining[i];
     const game = scheduleData[idx];
-    // Pick away team as winner
+
     userPicks[idx] = game.awayTeam;
     recurse(i + 1);
-    // Pick home team as winner
+
     userPicks[idx] = game.homeTeam;
     recurse(i + 1);
-    // Clean up
+
     delete userPicks[idx];
   }
+
   recurse(0);
   return {counts, total: totalPerms};
 }
 
 /**
- * Update the standings table and scenario summary. Also highlight schedule
- * cards based on user picks.
+ * Update standings table + scenario summary.
  */
 function updateStandings() {
   const {record, order} = computeStandings();
   const unpicked = computeUnpickedCounts();
   const {counts: champCounts, total: totalPerms} = computeScenarioCounts();
-  // Build standings table
+
   const container = document.getElementById('standingsContainer');
   if (!container) return;
   container.innerHTML = '';
+
   const table = document.createElement('table');
   const thead = document.createElement('thead');
   const headRow = document.createElement('tr');
@@ -400,54 +570,64 @@ function updateStandings() {
   });
   thead.appendChild(headRow);
   table.appendChild(thead);
+
   const tbody = document.createElement('tbody');
+
   order.forEach((team, index) => {
     const tr = document.createElement('tr');
-    // Determine highlight class based on championship probability
+
     const firstCount = champCounts[team].first;
     const secondCount = champCounts[team].second;
     const pct = totalPerms > 0 ? ((firstCount + secondCount) / totalPerms) * 100 : 0;
+
     if (pct === 100) {
       tr.classList.add('certain');
     } else if (pct === 0) {
       tr.classList.add('noChance');
     }
+
     const rankCell = document.createElement('td');
     rankCell.textContent = index + 1;
     tr.appendChild(rankCell);
+
     const teamCell = document.createElement('td');
     teamCell.textContent = team;
     tr.appendChild(teamCell);
+
     const winsCell = document.createElement('td');
     winsCell.textContent = record[team].wins;
     tr.appendChild(winsCell);
+
     const lossesCell = document.createElement('td');
     lossesCell.textContent = record[team].losses;
     tr.appendChild(lossesCell);
+
     const unpickedCell = document.createElement('td');
     unpickedCell.textContent = unpicked[team];
     tr.appendChild(unpickedCell);
+
     const pctCell = document.createElement('td');
     pctCell.textContent = pct.toFixed(1) + '%';
     tr.appendChild(pctCell);
+
     tbody.appendChild(tr);
   });
+
   table.appendChild(tbody);
   container.appendChild(table);
-  // Update scenario summary text
+
   const summaryDiv = document.getElementById('scenarioSummary');
   if (summaryDiv) {
     summaryDiv.textContent = `Total permutations considered: ${totalPerms}`;
   }
-  // Highlight schedule cards based on picks
+
   updateScheduleHighlights();
 }
 
 /**
- * Toggle visibility of completed games based on hideCompleted flag.
+ * Hide/show completed games.
  */
 function updateScheduleVisibility() {
-  // Hide or show completed game rows
   const rows = document.querySelectorAll('#scheduleContainer table tbody tr.completed');
   rows.forEach(row => {
     if (hideCompleted) {
@@ -456,7 +636,7 @@ function updateScheduleVisibility() {
       row.classList.remove('hidden');
     }
   });
-  // Update button text
+
   const toggleBtn = document.getElementById('toggleCompleted');
   if (toggleBtn) {
     toggleBtn.textContent = hideCompleted ? 'Show Completed Games' : 'Hide Completed Games';
@@ -464,8 +644,7 @@ function updateScheduleVisibility() {
 }
 
 /**
- * Highlight schedule cards when a user pick exists. Cards for unpicked or
- * completed games remain at default background color.
+ * Highlight picked games.
  */
 function updateScheduleHighlights() {
   const rows = document.querySelectorAll('#scheduleContainer table tbody tr');
