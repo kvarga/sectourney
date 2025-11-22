@@ -1,6 +1,6 @@
 [
   {
-    "date": "2025-09-06",
+    "date": "2025-09-13",
     "homeTeam": "Tennessee",
     "awayTeam": "Georgia",
     "winner": "Georgia",
@@ -8,7 +8,7 @@
     "awayScore": 44
   },
   {
-    "date": "2025-09-13",
+    "date": "2025-09-27",
     "homeTeam": "Georgia",
     "awayTeam": "Alabama",
     "winner": "Alabama",
@@ -25,14 +25,6 @@
   },
   {
     "date": "2025-09-13",
-    "homeTeam": "LSU",
-    "awayTeam": "Florida",
-    "winner": "LSU",
-    "homeScore": 20,
-    "awayScore": 10
-  },
-  {
-    "date": "2025-09-13",
     "homeTeam": "South Carolina",
     "awayTeam": "Vanderbilt",
     "winner": "Vanderbilt",
@@ -41,43 +33,19 @@
   },
   {
     "date": "2025-09-13",
-    "homeTeam": "Oklahoma",
-    "awayTeam": "Auburn",
-    "winner": "Oklahoma",
-    "homeScore": 24,
-    "awayScore": 17
+    "homeTeam": "LSU",
+    "awayTeam": "Florida",
+    "winner": "LSU",
+    "homeScore": 20,
+    "awayScore": 10
   },
   {
-    "date": "2025-09-20",
-    "homeTeam": "Alabama",
-    "awayTeam": "Vanderbilt",
-    "winner": "Alabama",
-    "homeScore": 30,
-    "awayScore": 14
-  },
-  {
-    "date": "2025-09-20",
+    "date": "2025-09-06",
     "homeTeam": "Kentucky",
     "awayTeam": "Ole Miss",
     "winner": "Ole Miss",
     "homeScore": 23,
     "awayScore": 30
-  },
-  {
-    "date": "2025-09-20",
-    "homeTeam": "Georgia",
-    "awayTeam": "Kentucky",
-    "winner": "Georgia",
-    "homeScore": 35,
-    "awayScore": 14
-  },
-  {
-    "date": "2025-09-20",
-    "homeTeam": "Missouri",
-    "awayTeam": "Vanderbilt",
-    "winner": "Vanderbilt",
-    "homeScore": 10,
-    "awayScore": 17
   },
   {
     "date": "2025-09-20",
@@ -88,36 +56,12 @@
     "awayScore": 20
   },
   {
-    "date": "2025-09-20",
-    "homeTeam": "Florida",
-    "awayTeam": "Texas",
-    "winner": "Florida",
-    "homeScore": 29,
-    "awayScore": 21
-  },
-  {
     "date": "2025-09-27",
-    "homeTeam": "Missouri",
-    "awayTeam": "Alabama",
-    "winner": "Alabama",
+    "homeTeam": "Ole Miss",
+    "awayTeam": "LSU",
+    "winner": "Ole Miss",
     "homeScore": 24,
-    "awayScore": 27
-  },
-  {
-    "date": "2025-09-27",
-    "homeTeam": "Tennessee",
-    "awayTeam": "Arkansas",
-    "winner": "Tennessee",
-    "homeScore": 34,
-    "awayScore": 31
-  },
-  {
-    "date": "2025-09-27",
-    "homeTeam": "Auburn",
-    "awayTeam": "Georgia",
-    "winner": "Georgia",
-    "homeScore": 10,
-    "awayScore": 20
+    "awayScore": 19
   },
   {
     "date": "2025-09-27",
@@ -129,11 +73,11 @@
   },
   {
     "date": "2025-09-27",
-    "homeTeam": "Texas A&M",
-    "awayTeam": "Mississippi State",
-    "winner": "Texas A&M",
-    "homeScore": 31,
-    "awayScore": 9
+    "homeTeam": "Mississippi State",
+    "awayTeam": "Tennessee",
+    "winner": "Tennessee",
+    "homeScore": 34,
+    "awayScore": 41
   },
   {
     "date": "2025-09-27",
@@ -144,55 +88,39 @@
     "awayScore": 13
   },
   {
-    "date": "2025-09-27",
-    "homeTeam": "Mississippi State",
-    "awayTeam": "Tennessee",
-    "winner": "Tennessee",
-    "homeScore": 34,
-    "awayScore": 41
-  },
-  {
-    "date": "2025-10-04",
-    "homeTeam": "Auburn",
-    "awayTeam": "Missouri",
-    "winner": "Missouri",
-    "homeScore": 17,
-    "awayScore": 23
-  },
-  {
-    "date": "2025-10-04",
-    "homeTeam": "Florida",
-    "awayTeam": "Mississippi State",
-    "winner": "Florida",
-    "homeScore": 23,
-    "awayScore": 21
-  },
-  {
-    "date": "2025-10-04",
-    "homeTeam": "Arkansas",
-    "awayTeam": "Texas A&M",
-    "winner": "Texas A&M",
-    "homeScore": 42,
-    "awayScore": 45
-  },
-  {
-    "date": "2025-10-04",
-    "homeTeam": "Ole Miss",
-    "awayTeam": "LSU",
-    "winner": "Ole Miss",
-    "homeScore": 24,
-    "awayScore": 19
-  },
-  {
     "date": "2025-10-04",
     "homeTeam": "Texas",
-    "awayTeam": "Oklahoma",
-    "winner": "Texas",
-    "homeScore": 23,
-    "awayScore": 6
+    "awayTeam": "Florida",
+    "winner": "Florida",
+    "homeScore": 21,
+    "awayScore": 29
   },
   {
     "date": "2025-10-04",
+    "homeTeam": "Texas A&M",
+    "awayTeam": "Mississippi State",
+    "winner": "Texas A&M",
+    "homeScore": 31,
+    "awayScore": 9
+  },
+  {
+    "date": "2025-10-04",
+    "homeTeam": "Georgia",
+    "awayTeam": "Kentucky",
+    "winner": "Georgia",
+    "homeScore": 35,
+    "awayScore": 14
+  },
+  {
+    "date": "2025-10-04",
+    "homeTeam": "Alabama",
+    "awayTeam": "Vanderbilt",
+    "winner": "Alabama",
+    "homeScore": 30,
+    "awayScore": 14
+  },
+  {
+    "date": "2025-10-11",
     "homeTeam": "Texas A&M",
     "awayTeam": "Florida",
     "winner": "Texas A&M",
@@ -201,27 +129,27 @@
   },
   {
     "date": "2025-10-11",
-    "homeTeam": "Alabama",
-    "awayTeam": "Tennessee",
+    "homeTeam": "Texas",
+    "awayTeam": "Oklahoma",
+    "winner": "Texas",
+    "homeScore": 23,
+    "awayScore": 6
+  },
+  {
+    "date": "2025-10-11",
+    "homeTeam": "Missouri",
+    "awayTeam": "Alabama",
     "winner": "Alabama",
-    "homeScore": 37,
-    "awayScore": 20
-  },
-  {
-    "date": "2025-10-11",
-    "homeTeam": "Georgia",
-    "awayTeam": "Ole Miss",
-    "winner": "Georgia",
-    "homeScore": 43,
-    "awayScore": 35
-  },
-  {
-    "date": "2025-10-11",
-    "homeTeam": "Arkansas",
-    "awayTeam": "Auburn",
-    "winner": "Auburn",
     "homeScore": 24,
-    "awayScore": 33
+    "awayScore": 27
+  },
+  {
+    "date": "2025-10-11",
+    "homeTeam": "Auburn",
+    "awayTeam": "Georgia",
+    "winner": "Georgia",
+    "homeScore": 10,
+    "awayScore": 20
   },
   {
     "date": "2025-10-11",
@@ -232,28 +160,44 @@
     "awayScore": 10
   },
   {
-    "date": "2025-10-18",
-    "homeTeam": "Kentucky",
-    "awayTeam": "Texas",
-    "winner": "Texas",
-    "homeScore": 13,
-    "awayScore": 16
+    "date": "2025-10-11",
+    "homeTeam": "Tennessee",
+    "awayTeam": "Arkansas",
+    "winner": "Tennessee",
+    "homeScore": 34,
+    "awayScore": 31
   },
   {
     "date": "2025-10-18",
-    "homeTeam": "Auburn",
-    "awayTeam": "Kentucky",
-    "winner": "Kentucky",
-    "homeScore": 3,
-    "awayScore": 10
-  },
-  {
-    "date": "2025-10-18",
-    "homeTeam": "Mississippi State",
-    "awayTeam": "Texas",
-    "winner": "Texas",
-    "homeScore": 38,
+    "homeTeam": "Arkansas",
+    "awayTeam": "Texas A&M",
+    "winner": "Texas A&M",
+    "homeScore": 42,
     "awayScore": 45
+  },
+  {
+    "date": "2025-10-18",
+    "homeTeam": "Georgia",
+    "awayTeam": "Ole Miss",
+    "winner": "Georgia",
+    "homeScore": 43,
+    "awayScore": 35
+  },
+  {
+    "date": "2025-10-18",
+    "homeTeam": "Alabama",
+    "awayTeam": "Tennessee",
+    "winner": "Alabama",
+    "homeScore": 37,
+    "awayScore": 20
+  },
+  {
+    "date": "2025-10-18",
+    "homeTeam": "Vanderbilt",
+    "awayTeam": "LSU",
+    "winner": "Vanderbilt",
+    "homeScore": 31,
+    "awayScore": 24
   },
   {
     "date": "2025-10-18",
@@ -265,19 +209,35 @@
   },
   {
     "date": "2025-10-18",
-    "homeTeam": "Arkansas",
+    "homeTeam": "Auburn",
+    "awayTeam": "Missouri",
+    "winner": "Missouri",
+    "homeScore": 17,
+    "awayScore": 23
+  },
+  {
+    "date": "2025-10-18",
+    "homeTeam": "Kentucky",
+    "awayTeam": "Texas",
+    "winner": "Texas",
+    "homeScore": 13,
+    "awayScore": 16
+  },
+  {
+    "date": "2025-10-18",
+    "homeTeam": "Florida",
     "awayTeam": "Mississippi State",
-    "winner": "Mississippi State",
-    "homeScore": 35,
-    "awayScore": 38
+    "winner": "Florida",
+    "homeScore": 23,
+    "awayScore": 21
   },
   {
     "date": "2025-10-25",
-    "homeTeam": "Georgia",
-    "awayTeam": "Florida",
-    "winner": "Georgia",
-    "homeScore": 24,
-    "awayScore": 20
+    "homeTeam": "LSU",
+    "awayTeam": "Texas A&M",
+    "winner": "Texas A&M",
+    "homeScore": 25,
+    "awayScore": 49
   },
   {
     "date": "2025-10-25",
@@ -297,6 +257,14 @@
   },
   {
     "date": "2025-10-25",
+    "homeTeam": "Missouri",
+    "awayTeam": "Vanderbilt",
+    "winner": "Vanderbilt",
+    "homeScore": 10,
+    "awayScore": 17
+  },
+  {
+    "date": "2025-10-25",
     "homeTeam": "Kentucky",
     "awayTeam": "Tennessee",
     "winner": "Tennessee",
@@ -305,51 +273,59 @@
   },
   {
     "date": "2025-10-25",
-    "homeTeam": "LSU",
-    "awayTeam": "Texas A&M",
-    "winner": "Texas A&M",
-    "homeScore": 25,
-    "awayScore": 49
-  },
-  {
-    "date": "2025-11-01",
-    "homeTeam": "Vanderbilt",
-    "awayTeam": "Auburn",
-    "winner": "Vanderbilt",
-    "homeScore": 45,
-    "awayScore": 38
-  },
-  {
-    "date": "2025-11-01",
     "homeTeam": "Mississippi State",
-    "awayTeam": "Georgia",
+    "awayTeam": "Texas",
+    "winner": "Texas",
+    "homeScore": 38,
+    "awayScore": 45
+  },
+  {
+    "date": "2025-10-25",
+    "homeTeam": "Arkansas",
+    "awayTeam": "Auburn",
+    "winner": "Auburn",
+    "homeScore": 24,
+    "awayScore": 33
+  },
+  {
+    "date": "2025-11-01",
+    "homeTeam": "Georgia",
+    "awayTeam": "Florida",
     "winner": "Georgia",
-    "homeScore": 21,
-    "awayScore": 41
+    "homeScore": 24,
+    "awayScore": 20
+  },
+  {
+    "date": "2025-11-01",
+    "homeTeam": "Arkansas",
+    "awayTeam": "Mississippi State",
+    "winner": "Arkansas",
+    "homeScore": 42,
+    "awayScore": 21
   },
   {
     "date": "2025-11-01",
     "homeTeam": "Ole Miss",
     "awayTeam": "South Carolina",
     "winner": "Ole Miss",
-    "homeScore": 30,
-    "awayScore": 14
+    "homeScore": 31,
+    "awayScore": 28
   },
   {
     "date": "2025-11-01",
     "homeTeam": "Tennessee",
     "awayTeam": "Oklahoma",
-    "winner": "Oklahoma",
+    "winner": "Tennessee",
     "homeScore": 27,
-    "awayScore": 33
+    "awayScore": 24
   },
   {
     "date": "2025-11-01",
-    "homeTeam": "Alabama",
-    "awayTeam": "LSU",
-    "winner": "Alabama",
-    "homeScore": 20,
-    "awayScore": 9
+    "homeTeam": "Auburn",
+    "awayTeam": "Kentucky",
+    "winner": "Auburn",
+    "homeScore": 34,
+    "awayScore": 21
   },
   {
     "date": "2025-11-01",
@@ -358,22 +334,6 @@
     "winner": "Texas",
     "homeScore": 34,
     "awayScore": 31
-  },
-  {
-    "date": "2025-11-08",
-    "homeTeam": "Kentucky",
-    "awayTeam": "Florida",
-    "winner": "Kentucky",
-    "homeScore": 38,
-    "awayScore": 7
-  },
-  {
-    "date": "2025-11-08",
-    "homeTeam": "Vanderbilt",
-    "awayTeam": "LSU",
-    "winner": "Vanderbilt",
-    "homeScore": 31,
-    "awayScore": 24
   },
   {
     "date": "2025-11-08",
@@ -386,26 +346,50 @@
   {
     "date": "2025-11-08",
     "homeTeam": "Alabama",
+    "awayTeam": "LSU",
+    "winner": "Alabama",
+    "homeScore": 20,
+    "awayScore": 9
+  },
+  {
+    "date": "2025-11-08",
+    "homeTeam": "Mississippi State",
+    "awayTeam": "Georgia",
+    "winner": "Georgia",
+    "homeScore": 21,
+    "awayScore": 41
+  },
+  {
+    "date": "2025-11-08",
+    "homeTeam": "Vanderbilt",
+    "awayTeam": "Auburn",
+    "winner": "Vanderbilt",
+    "homeScore": 45,
+    "awayScore": 38
+  },
+  {
+    "date": "2025-11-08",
+    "homeTeam": "Kentucky",
+    "awayTeam": "Florida",
+    "winner": "Kentucky",
+    "homeScore": 38,
+    "awayScore": 7
+  },
+  {
+    "date": "2025-11-15",
+    "homeTeam": "Texas A&M",
+    "awayTeam": "South Carolina",
+    "winner": "Texas A&M",
+    "homeScore": 31,
+    "awayScore": 30
+  },
+  {
+    "date": "2025-11-15",
+    "homeTeam": "Alabama",
     "awayTeam": "Oklahoma",
     "winner": "Oklahoma",
     "homeScore": 21,
     "awayScore": 23
-  },
-  {
-    "date": "2025-11-15",
-    "homeTeam": "LSU",
-    "awayTeam": "Arkansas",
-    "winner": "LSU",
-    "homeScore": 23,
-    "awayScore": 22
-  },
-  {
-    "date": "2025-11-15",
-    "homeTeam": "Ole Miss",
-    "awayTeam": "Florida",
-    "winner": "Ole Miss",
-    "homeScore": 34,
-    "awayScore": 24
   },
   {
     "date": "2025-11-15",
@@ -417,27 +401,27 @@
   },
   {
     "date": "2025-11-15",
-    "homeTeam": "Texas A&M",
-    "awayTeam": "South Carolina",
-    "winner": "Texas A&M",
-    "homeScore": 31,
-    "awayScore": 30
+    "homeTeam": "Ole Miss",
+    "awayTeam": "Florida",
+    "winner": "Ole Miss",
+    "homeScore": 34,
+    "awayScore": 24
   },
   {
-    "date": "2025-11-22",
+    "date": "2025-11-15",
     "homeTeam": "Missouri",
     "awayTeam": "Mississippi State",
-    "winner": null,
-    "homeScore": null,
-    "awayScore": null
+    "winner": "Missouri",
+    "homeScore": 49,
+    "awayScore": 27
   },
   {
-    "date": "2025-11-22",
-    "homeTeam": "Florida",
-    "awayTeam": "Tennessee",
-    "winner": null,
-    "homeScore": null,
-    "awayScore": null
+    "date": "2025-11-15",
+    "homeTeam": "LSU",
+    "awayTeam": "Arkansas",
+    "winner": "Arkansas",
+    "homeScore": 22,
+    "awayScore": 23
   },
   {
     "date": "2025-11-22",
@@ -464,7 +448,15 @@
     "awayScore": null
   },
   {
-    "date": "2025-11-27",
+    "date": "2025-11-22",
+    "homeTeam": "Florida",
+    "awayTeam": "Tennessee",
+    "winner": null,
+    "homeScore": null,
+    "awayScore": null
+  },
+  {
+    "date": "2025-11-28",
     "homeTeam": "Mississippi State",
     "awayTeam": "Ole Miss",
     "winner": null,
@@ -481,8 +473,8 @@
   },
   {
     "date": "2025-11-29",
-    "homeTeam": "Auburn",
-    "awayTeam": "Alabama",
+    "homeTeam": "Oklahoma",
+    "awayTeam": "LSU",
     "winner": null,
     "homeScore": null,
     "awayScore": null
@@ -505,10 +497,18 @@
   },
   {
     "date": "2025-11-29",
-    "homeTeam": "Oklahoma",
-    "awayTeam": "LSU",
+    "homeTeam": "Auburn",
+    "awayTeam": "Alabama",
     "winner": null,
     "homeScore": null,
     "awayScore": null
+  },
+  {
+    "date": "2025-09-13",
+    "homeTeam": "Oklahoma",
+    "awayTeam": "Auburn",
+    "winner": "Oklahoma",
+    "homeScore": 24,
+    "awayScore": 17
   }
 ]
