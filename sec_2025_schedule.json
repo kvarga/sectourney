@@ -427,33 +427,33 @@
     "date": "2025-11-22",
     "homeTeam": "Texas",
     "awayTeam": "Arkansas",
-    "winner": null,
-    "homeScore": null,
-    "awayScore": null
+    "winner": "Texas",
+    "homeScore": 52,
+    "awayScore": 37
   },
   {
     "date": "2025-11-22",
     "homeTeam": "Vanderbilt",
     "awayTeam": "Kentucky",
-    "winner": null,
-    "homeScore": null,
-    "awayScore": null
+    "winner": "Vanderbilt",
+    "homeScore": 45,
+    "awayScore": 17
   },
   {
     "date": "2025-11-22",
     "homeTeam": "Oklahoma",
     "awayTeam": "Missouri",
-    "winner": null,
-    "homeScore": null,
-    "awayScore": null
+    "winner": "Oklahoma",
+    "homeScore": 17,
+    "awayScore": 6
   },
   {
     "date": "2025-11-22",
     "homeTeam": "Florida",
     "awayTeam": "Tennessee",
-    "winner": null,
-    "homeScore": null,
-    "awayScore": null
+    "winner": "Tennessee",
+    "homeScore": 11,
+    "awayScore": 31
   },
   {
     "date": "2025-11-28",
